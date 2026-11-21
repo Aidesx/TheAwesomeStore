@@ -1,8 +1,8 @@
 .compare-container {
         max-width: 100%;
         margin: 2rem auto;
-        background: #0d1117;
-        border: 1px solid #1a1f35;
+        background: var(--bg-deep);
+        border: 1px solid var(--border-legacy);
         border-radius: 0.75rem;
         padding: 2rem;
     }
@@ -17,17 +17,17 @@
     .compare-table {
         width: 100%;
         border-collapse: collapse;
-        color: #cbd5e1;
+        color: var(--text-soft);
         background: transparent;
     }
     .compare-table th, .compare-table td {
         padding: 1rem;
-        border: 1px solid #1a1f35;
+        border: 1px solid var(--border-legacy);
         vertical-align: middle;
         text-align: center;
     }
     .compare-table th {
-        background: #111827;
+        background: var(--bg-raised);
         color: #94a3b8;
         font-weight: 500;
         white-space: nowrap;
@@ -41,11 +41,11 @@
         border: 1px solid #1e3a5f;
     }
     .compare-name {
-        color: #e2e8f0;
+        color: var(--text-content);
         font-weight: 600;
     }
     .compare-price {
-        color: #60a5fa;
+        color: var(--text-accent);
         font-weight: 600;
         font-size: 1rem;
     }
@@ -56,7 +56,7 @@
     line-height: 1.5;
 }
 .btn-add-cart {
-        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        background: linear-gradient(135deg, var(--color-primary-strong), var(--color-primary));
         color: white;
         border: none;
         padding: 0.4rem 1rem;
@@ -87,6 +87,6 @@
 .empty-compare {
     text-align: center;
     padding: 3rem;
-    color: #4b5e7a;
+    color: #94a3b8;
     font-size: 1.05rem;
 }

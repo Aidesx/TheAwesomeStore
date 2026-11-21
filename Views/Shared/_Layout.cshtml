@@ -19,8 +19,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="">
-	<meta name="author" content="">
+	<meta name="description" content="Khám phá sản phẩm công nghệ tại @shopName với thông tin rõ ràng và trải nghiệm mua sắm tiện lợi.">
 	<title>@(ViewData["Title"] ?? shopName) | @shopName</title>
 
 	<link href="~/css/bootstrap.min.css" rel="stylesheet">
@@ -132,33 +131,33 @@
 				<div class="row">
 					<div class="col-sm-9">
 						<div class="navbar-header">
-							<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+							<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="primary-navigation" aria-expanded="false" aria-label="Mở menu điều hướng">
 								<span class="sr-only">Toggle navigation</span>
 								<span class="icon-bar"></span>
 								<span class="icon-bar"></span>
 								<span class="icon-bar"></span>
 							</button>
 						</div>
-						<div class="mainmenu pull-left">
-							<ul class="nav navbar-nav collapse navbar-collapse ">
-								<li><a asp-controller="Home" asp-action="Index" class="active">Home</a></li>
+						<nav class="mainmenu pull-left" aria-label="Điều hướng chính">
+							<ul id="primary-navigation" class="nav navbar-nav collapse navbar-collapse ">
+								<li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
 								<li class="dropdown">
-									<a asp-controller="Product">Shop<i class="fa fa-angle-down"></i></a>
-									<ul role="menu" class="sub-menu">
-										<li><a asp-action="Index" asp-controller="Category">Category</a></li>
-										<li><a asp-action="Index" asp-controller="Product">Product Details</a></li>
-										<li><a asp-action="Index" asp-controller="Cart">Cart</a></li>
+									<a asp-controller="Product">Sản phẩm<i class="fa fa-angle-down"></i></a>
+									<ul class="sub-menu">
+										<li><a asp-action="Index" asp-controller="Product">Sản phẩm</a></li>
+										<li><a asp-action="Index" asp-controller="Cart">Giỏ hàng</a></li>
 									</ul>
 								</li>
-								<li><a asp-controller="Home" asp-action="Error" asp-route-statusCode="404">404</a></li>
-								<li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
+
+								<li><a asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
 							</ul>
-						</div>
+						</nav>
 					</div>
 					<div class="col-sm-3">
-						<form asp-controller="Product" asp-action="Search" method="post">
+						<form asp-controller="Product" asp-action="Search" method="get">
 							<div class="search_box pull-right">
-								<input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." />
+								<label class="sr-only" for="site-product-search">Tìm kiếm sản phẩm</label>
+								<input type="text" id="site-product-search" name="search" placeholder="Tìm kiếm sản phẩm..." />
 								<button type="submit" class="btn btn-search"><i class="fa fa-search"></i> Tìm</button>
 							</div>
 						</form>
@@ -168,7 +167,8 @@
 		</div>
 	</header>
 
-	<main class="site-main">
+	<a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
+	<main id="main-content" class="site-main">
 		<div class="container">
 			<div class="row">
 				@RenderBody()
@@ -185,12 +185,6 @@
 							<h3><i class="fa fa-shopping-bag" style="color: #3b82f6; margin-right: 0.5rem;"></i>@shopName</h3>
 							<p>Hệ thống mua sắm công nghệ tập trung vào sự rõ ràng, tốc độ và trải nghiệm đồng nhất.</p>
 						</div>
-					</div>
-					<div class="footer-social-row">
-						<a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-						<a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-						<a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-						<a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
 					</div>
 				</div>
 
@@ -212,8 +206,6 @@
 					<ul class="footer-link-list">
 						<li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
 						<li><a asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a></li>
-						<li><a asp-controller="Category" asp-action="Index">Category</a></li>
-						<li><a asp-controller="Brand" asp-action="Index">Brand</a></li>
 						<li><a asp-controller="Home" asp-action="Compare">So sánh</a></li>
 						<li><a asp-controller="Home" asp-action="WishList">Yêu thích</a></li>
 					</ul>
@@ -228,7 +220,7 @@
 
 			<div class="footer-bottom">
 				<span>© @DateTime.Now.Year @shopName</span>
-				<span>03 Quang Trung, Hải Châu, Đà Nẵng, Việt Nam</span>
+				<span>@deliverySettings.StoreAddress</span>
 			</div>
 		</div>
 	</footer>
@@ -242,6 +234,7 @@
 	<script src="~/backend/js/site.js"></script>
 	<script>
 		$(function () {
+			$('.navbar-collapse').on('shown.bs.collapse', function () { $('.navbar-toggle').attr('aria-expanded', 'true'); }).on('hidden.bs.collapse', function () { $('.navbar-toggle').attr('aria-expanded', 'false'); });
 			var successMessage = '@Html.Raw(TempData["Success"])';
 			if (successMessage != '') {
 				Swal.fire({

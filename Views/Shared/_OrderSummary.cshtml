@@ -37,26 +37,39 @@
                                     <span>Hoặc</span>
                                 </div>
                                 <div class="delivery-location-manual">
-                                    <div id="delivery-map" class="delivery-map-container"></div>
+                                    <div id="delivery-map" class="delivery-map-container" role="region" aria-label="Bản đồ chọn vị trí giao hàng"></div>
 
                                     <div class="delivery-manual-actions">
                                         <input type="hidden" id="ManualLatitude" />
                                         <input type="hidden" id="ManualLongitude" />
+                                        <div class="delivery-coordinate-fields">
+                                            <div>
+                                                <label class="checkout-field-label" for="manualLatitudeInput">Vĩ độ</label>
+                                                <input type="number" id="manualLatitudeInput" class="checkout-field-input" min="-90" max="90" step="any" inputmode="decimal" autocomplete="off" />
+                                            </div>
+                                            <div>
+                                                <label class="checkout-field-label" for="manualLongitudeInput">Kinh độ</label>
+                                                <input type="number" id="manualLongitudeInput" class="checkout-field-input" min="-180" max="180" step="any" inputmode="decimal" autocomplete="off" />
+                                            </div>
+                                            <button type="button" class="btn-location-action" id="btn-apply-manual-coordinates">Dùng tọa độ</button>
+                                        </div>
                                         <button type="button" class="btn-location-action" id="btn-use-manual-location">
                                             <i class="fa fa-check"></i> Xác nhận vị trí
                                         </button>
-                                        <span class="delivery-manual-hint">Chạm vào bản đồ để chọn vị trí</span>
+                                        <span class="delivery-manual-hint">Chọn trên bản đồ hoặc nhập tọa độ vĩ độ và kinh độ.</span>
                                     </div>
                                 </div>
                             </div>
 
                         </div>
 
-                        <p class="delivery-location-note" id="location-status">
+                        <p class="delivery-location-note" id="location-status" role="status" aria-live="polite" aria-atomic="true">
                             @Model.DeliveryMessage
                         </p>
 
 
+
+                        <p id="selected-location-summary" class="delivery-location-note">Chưa chọn tọa độ giao hàng.</p>
 
                         <div class="delivery-location-meta">
                             <span>
@@ -84,9 +97,9 @@
                                 @if (mode == "Cart")
                                 {
                                     <div class="order-quantity-row">
-                                        <a asp-controller="Cart" asp-action="Decrease" asp-route-id="@item.ProductId" class="qty-btn">−</a>
+                                        <a asp-controller="Cart" asp-action="Decrease" asp-route-id="@item.ProductId" class="qty-btn" aria-label="Giảm số lượng @item.ProductName">−</a>
                                         <span class="qty-value">@item.Quantity</span>
-                                        <a asp-controller="Cart" asp-action="Increase" asp-route-id="@item.ProductId" class="qty-btn">+</a>
+                                        <a asp-controller="Cart" asp-action="Increase" asp-route-id="@item.ProductId" class="qty-btn" aria-label="Tăng số lượng @item.ProductName">+</a>
                                     </div>
                                 }
                                 else
@@ -100,7 +113,7 @@
                                 </div>
                                 @if (mode == "Cart")
                                 {
-                                    <a asp-controller="Cart" asp-action="Remove" asp-route-id="@item.ProductId" class="remove-line-btn">
+                                    <a asp-controller="Cart" asp-action="Remove" asp-route-id="@item.ProductId" class="remove-line-btn" aria-label="Xóa @item.ProductName khỏi giỏ hàng">
                                         <i class="fa fa-trash"></i>
                                     </a>
                                 }
@@ -140,16 +153,16 @@
 
                             <div class="checkout-delivery-fields">
                                 <div>
-                                    <label class="checkout-field-label">Họ và tên người nhận</label>
-                                    <input type="text" name="receiverName" value="@Model.ReceiverName" required placeholder="Nhập tên người nhận hàng" class="checkout-field-input" />
+                                    <label class="checkout-field-label" for="receiverName">Họ và tên người nhận</label>
+                                    <input type="text" id="receiverName" name="receiverName" value="@Model.ReceiverName" required placeholder="Nhập tên người nhận hàng" class="checkout-field-input" />
                                 </div>
                                 <div>
-                                    <label class="checkout-field-label">Số điện thoại</label>
-                                    <input type="tel" name="phoneNumber" value="@Model.PhoneNumber" required placeholder="Số điện thoại giao hàng" class="checkout-field-input" />
+                                    <label class="checkout-field-label" for="phoneNumber">Số điện thoại</label>
+                                    <input type="tel" id="phoneNumber" name="phoneNumber" value="@Model.PhoneNumber" required placeholder="Số điện thoại giao hàng" class="checkout-field-input" />
                                 </div>
                                 <div>
-                                    <label class="checkout-field-label">Địa chỉ nhận hàng chi tiết</label>
-                                    <input type="text" name="shippingAddress" value="@Model.ShippingAddress" required placeholder="Số nhà, tên đường, quận/huyện..." class="checkout-field-input" />
+                                    <label class="checkout-field-label" for="shippingAddress">Địa chỉ nhận hàng chi tiết</label>
+                                    <input type="text" id="shippingAddress" name="shippingAddress" value="@Model.ShippingAddress" required placeholder="Số nhà, tên đường, quận/huyện..." class="checkout-field-input" />
                                 </div>
                                 <div>
                                     <label class="checkout-field-label">Phương thức thanh toán</label>

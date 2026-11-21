@@ -29,12 +29,12 @@
                     </div>
 
                     <div class="quantity-box">
-                        <span>Số lượng:</span>
-                        <input type="number" value="1" min="1" class="form-control" />
+                        <label for="product-quantity">Số lượng:</label>
+                        <input id="product-quantity" type="number" value="1" min="1" max="@Math.Min(100, Model.Product.StockQuantity)" inputmode="numeric" class="form-control" disabled="@(Model.Product.StockQuantity <= 0)" aria-describedby="product-stock-status" />
                     </div>
 
                     <div class="product-action-group">
-                        <button type="button" class="btn-add-cart add-to-cart" data-product-id="@Model.Product.Id">
+                        <button type="button" class="btn-add-cart add-to-cart" data-product-id="@Model.Product.Id" disabled="@(Model.Product.StockQuantity <= 0)">
                             <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
                         </button>
                         @if (User.Identity?.IsAuthenticated ?? false)
@@ -49,17 +49,16 @@
                     </div>
 
                     <div class="meta-info">
-                        <p><b>Availability:</b> <span class="availability-in-stock">In Stock</span></p>
-                        <p><b>Condition:</b> <span>Mới</span></p>
-                        <p><b>Brand:</b> <span>@Model.Product.Brand.Name</span></p>
-                        <p><b>Category:</b> <span>@Model.Product.Category.Name</span></p>
+                        <p id="product-stock-status"><b>Tồn kho:</b> <span>@(Model.Product.StockQuantity > 0 ? $"Còn {Model.Product.StockQuantity} sản phẩm" : "Hiện đã hết hàng. Vui lòng liên hệ cửa hàng để được hỗ trợ.")</span></p>
+                        <p><b>Tình trạng:</b> <span>Mới</span></p>
+                        <p><b>Thương hiệu:</b> <span>@Model.Product.Brand.Name</span></p>
+                        <p><b>Danh mục:</b> <span>@Model.Product.Category.Name</span></p>
                     </div>
 
                     <div class="share-row" style="margin-top: 1.25rem; display: flex; align-items: center; gap: 0.75rem; color: #94a3b8; font-size: 0.9rem;">
                         <span>Chia sẻ:</span>
-                        <a href="#" aria-label="Facebook" style="color: #60a5fa; font-size: 1.1rem;"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Twitter" style="color: #38bdf8; font-size: 1.1rem;"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="Telegram" style="color: #818cf8; font-size: 1.1rem;"><i class="fab fa-telegram"></i></a>
+                        <button type="button" class="btn-copy-product-link" id="copy-product-link">Sao chép liên kết</button>
+                        <span id="copy-product-link-status" role="status" aria-live="polite"></span>
                     </div>
                 </div>
             </div>
@@ -88,12 +87,12 @@
                         {
                             <div class="mini-product-card">
                                 <a asp-action="Details" asp-controller="Product" asp-route-id="@related.Id">
-                                    <img src="~/images/@related.Image" alt="@related.Name" />
+                                    <img loading="lazy" decoding="async" src="~/images/@related.Image" alt="@related.Name" />
                                 </a>
                                 <div class="caption">
                                     <h5>@related.Name</h5>
                                     <div class="price">@related.Price.ToString("N0") đ</div>
-                                    <button type="button" class="btn-add-cart add-to-cart" data-product-id="@related.Id">
+                                    <button type="button" class="btn-add-cart add-to-cart" data-product-id="@related.Id" disabled="@(related.StockQuantity <= 0)">
                                         <i class="fa fa-shopping-cart"></i> Thêm
                                     </button>
                                 </div>
@@ -108,12 +107,12 @@
                         {
                             <div class="mini-product-card">
                                 <a asp-action="Details" asp-controller="Product" asp-route-id="@related.Id">
-                                    <img src="~/images/@related.Image" alt="@related.Name" />
+                                    <img loading="lazy" decoding="async" src="~/images/@related.Image" alt="@related.Name" />
                                 </a>
                                 <div class="caption">
                                     <h5>@related.Name</h5>
                                     <div class="price">@related.Price.ToString("N0") đ</div>
-                                    <button type="button" class="btn-add-cart add-to-cart" data-product-id="@related.Id">
+                                    <button type="button" class="btn-add-cart add-to-cart" data-product-id="@related.Id" disabled="@(related.StockQuantity <= 0)">
                                         <i class="fa fa-shopping-cart"></i> Thêm
                                     </button>
                                 </div>
@@ -168,30 +167,29 @@
                                     <input type="hidden" asp-for="Rating.ProductId" value="@Model.Product.Id" />
 
                                     <div class="form-group">
-                                        <label>Tên</label>
+                                        <label asp-for="Rating.Name">Tên</label>
                                         <input asp-for="Rating.Name" type="text" value="@ViewBag.UserName" readonly class="form-control" />
                                     </div>
                                     <div class="form-group">
-                                        <label>Email</label>
+                                        <label asp-for="Rating.Email">Email</label>
                                         <input asp-for="Rating.Email" type="email" value="@ViewBag.UserEmail" readonly class="form-control" />
                                     </div>
                                     <div class="form-group">
-                                        <label>Bình luận</label>
+                                        <label asp-for="Rating.Comment">Bình luận</label>
                                         <textarea asp-for="Rating.Comment" class="form-control" rows="4" placeholder="Viết cảm nghĩ của bạn..."></textarea>
                                         <span asp-validation-for="Rating.Comment" class="text-danger"></span>
                                     </div>
 
-                                    <div class="rating-row">
-                                        <label>Rating:</label>
-                                        <span id="star-rating" class="star-picker">
-                                            <i class="fa fa-star" data-value="1"></i>
-                                            <i class="fa fa-star" data-value="2"></i>
-                                            <i class="fa fa-star" data-value="3"></i>
-                                            <i class="fa fa-star" data-value="4"></i>
-                                            <i class="fa fa-star" data-value="5"></i>
-                                        </span>
-                                        <input type="hidden" asp-for="Rating.Rating" id="RatingValue" value="5" />
-                                    </div>
+                                    <fieldset class="rating-row star-picker-group">
+                                        <legend>Đánh giá</legend>
+                                        <div id="star-rating" class="star-picker" role="radiogroup" aria-label="Chọn số sao">
+                                            @for (var score = 1; score <= 5; score++)
+                                            {
+                                                <input class="visually-hidden star-radio" type="radio" name="Rating.Rating" id="rating-@score" value="@score" checked="@(score == 5)" />
+                                                <label for="rating-@score" aria-label="@score sao"><i class="fa fa-star" aria-hidden="true"></i></label>
+                                            }
+                                        </div>
+                                    </fieldset>
 
                                     <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
                                 </form>
@@ -218,7 +216,7 @@
         {
             <div class="recommended_items">
                 <h2><i class="fa fa-star"></i> Sản phẩm đề xuất</h2>
-                <div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
+                <div id="recommended-item-carousel" class="carousel slide">
                     <div class="carousel-inner">
                         @{
                             int recCount = 0;
@@ -233,12 +231,12 @@
                                 <div class="col-sm-4">
                                     <div class="mini-product-card compact">
                                         <a asp-action="Details" asp-controller="Product" asp-route-id="@related.Id">
-                                            <img src="~/images/@related.Image" alt="@related.Name" onerror="this.onerror=null;this.src='/images/default.png';" />
+                                            <img loading="lazy" decoding="async" src="~/images/@related.Image" alt="@related.Name" onerror="this.onerror=null;this.src='/images/default.png';" />
                                         </a>
                                         <div class="caption">
                                             <h5>@related.Name</h5>
                                             <div class="price">@related.Price.ToString("N0") đ</div>
-                                            <button type="button" class="btn-add-cart add-to-cart" data-product-id="@related.Id">
+                                            <button type="button" class="btn-add-cart add-to-cart" data-product-id="@related.Id" disabled="@(related.StockQuantity <= 0)">
                                                 <i class="fa fa-shopping-cart"></i> Thêm
                                             </button>
                                         </div>
@@ -255,11 +253,11 @@
                     </div>
                     @if (recommendedProducts.Count > 3)
                     {
-                        <a class="left carousel-control" href="#recommended-item-carousel" data-slide="prev">
-                            <i class="fa fa-angle-left"></i>
+                        <a class="left carousel-control" href="#recommended-item-carousel" data-slide="prev" aria-label="Sản phẩm đề xuất trước">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
                         </a>
-                        <a class="right carousel-control" href="#recommended-item-carousel" data-slide="next">
-                            <i class="fa fa-angle-right"></i>
+                        <a class="right carousel-control" href="#recommended-item-carousel" data-slide="next" aria-label="Sản phẩm đề xuất tiếp theo">
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
                         </a>
                     }
                 </div>
@@ -271,16 +269,21 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#star-rating i').on('click', function () {
-                var selectedValue = $(this).data('value');
-                $('#RatingValue').val(selectedValue);
+            $('#copy-product-link').on('click', async function () {
+                var status = document.getElementById('copy-product-link-status');
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    if (status) status.textContent = 'Đã sao chép liên kết sản phẩm.';
+                } catch (error) {
+                    if (status) status.textContent = 'Trình duyệt không cho phép sao chép liên kết.';
+                }
+            });
 
-                $('#star-rating i').each(function () {
-                    if ($(this).data('value') <= selectedValue) {
-                        $(this).removeClass('fa-star-o').addClass('fa-star');
-                    } else {
-                        $(this).removeClass('fa-star').addClass('fa-star-o');
-                    }
+            $('#star-rating input').on('change', function () {
+                var selectedValue = Number(this.value);
+                $('#star-rating').attr('aria-label', `Đã chọn ${selectedValue} trên 5 sao`);
+                $('#star-rating label i').each(function (index) {
+                    $(this).toggleClass('fa-star', index < selectedValue).toggleClass('fa-star-o', index >= selectedValue);
                 });
             });
 
@@ -290,13 +293,13 @@
                 $.ajax({
                     url: '@Url.Action("Add", "Cart")',
                     type: 'POST',
-                    data: { Id: id },
+                    data: { Id: id, quantity: $(this).closest('.product-info-box').length ? Math.max(1, Math.min(100, parseInt($('#product-quantity').val(), 10) || 1)) : 1 },
                     success: function (result) {
-                        if (result) {
+                        if (result.success) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Thành công',
-                                text: 'Đã thêm vào giỏ hàng!',
+                                text: result.message || 'Đã thêm vào giỏ hàng!',
                                 background: '#0d1117',
                                 color: '#e2e8f0',
                                 showConfirmButton: false,
@@ -304,11 +307,11 @@
                             });
                         }
                     },
-                    error: function () {
+                    error: function (xhr) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Thất bại',
-                            text: 'Có lỗi xảy ra',
+                            text: xhr.responseJSON?.message || 'Có lỗi xảy ra',
                             background: '#0d1117',
                             color: '#e2e8f0'
                         });

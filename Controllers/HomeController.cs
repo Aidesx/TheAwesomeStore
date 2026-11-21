@@ -22,13 +22,21 @@ namespace Project_385.Controllers
         }
 
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pg = 1)
         {
+            const int pageSize = 12;
+            var totalItems = await _dataContext.Products.CountAsync();
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));
+            pg = Math.Clamp(pg, 1, totalPages);
             var product = await _dataContext.Products
                 .AsNoTracking()
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
+                .OrderByDescending(p => p.Id)
+                .Skip((pg - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+            ViewBag.Pager = new Paginate(totalItems, pg, pageSize);
             return View(product);
         }
 
