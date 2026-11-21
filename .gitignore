@@ -484,3 +484,9 @@ $RECYCLE.BIN/
 !appsettings.json
 !appsettings.Development.json
 !global.json
+
+# Local agent skills and Codex settings (keep off GitHub)
+/.skill/
+/.agents/skills/
+/.agent/skills/
+/.codex/
