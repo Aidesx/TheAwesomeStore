@@ -25,6 +25,12 @@
         </div>
 
         <div class="form-group">
+            <label asp-for="StockQuantity" style="color: #cbd5e1; font-weight: 500;">Số lượng tồn kho</label>
+            <input asp-for="StockQuantity" type="number" min="0" class="form-control" style="background: #111827; border: 1px solid #1e3a5f; color: #f0f4ff;" />
+            <span asp-validation-for="StockQuantity" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
             <label style="color: #cbd5e1; font-weight: 500;">Mô tả</label>
             <textarea asp-for="Description" class="form-control" style="background: #111827; border: 1px solid #1e3a5f; color: #f0f4ff;"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>

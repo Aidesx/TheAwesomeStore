@@ -175,6 +175,7 @@ namespace Project_385.Areas.Admin.Controllers
                 existingProduct.Slug = product.Slug;
                 existingProduct.Description = product.Description;
                 existingProduct.Price = product.Price;
+                existingProduct.StockQuantity = product.StockQuantity;
                 existingProduct.BrandID = product.BrandID;
                 existingProduct.CategoryID = product.CategoryID;
 

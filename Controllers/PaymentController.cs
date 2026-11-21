@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using Project_385.Services;
 using Project_385.Models;
 using Project_385.Data;
@@ -42,14 +43,24 @@ namespace Project_385.Controllers
                     return RedirectToAction("Index", "Cart");
                 }
 
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == response.OrderId);
+                await using var callbackTransaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+                var order = await _context.Orders
+                    .FromSqlInterpolated($"SELECT * FROM [Orders] WITH (UPDLOCK, ROWLOCK) WHERE [OrderNumber] = {response.OrderId}")
+                    .FirstOrDefaultAsync();
 
                 if (order != null)
                 {
+                    if (order.Status != (int)OrderStatus.Pending)
+                    {
+                        TempData["Error"] = "Đơn hàng đã được xử lý trước đó.";
+                        return RedirectToAction("Index", "Cart");
+                    }
+
                     if (response.ResultCode == "0")
                     {
                         order.Status = (int)OrderStatus.Paid;
                         await _context.SaveChangesAsync();
+                        await callbackTransaction.CommitAsync();
 
                         var orderDetails = await _context.OrderDetails
                             .Where(od => od.OrderId == order.Id)
@@ -69,8 +80,23 @@ namespace Project_385.Controllers
                     }
                     else
                     {
+                        var orderDetails = await _context.OrderDetails
+                            .Where(item => item.OrderId == order.Id)
+                            .ToListAsync();
+                        if (!order.StockReturned)
+                        {
+                            foreach (var item in orderDetails)
+                            {
+                                await _context.Products
+                                    .Where(product => product.Id == item.ProductId)
+                                    .ExecuteUpdateAsync(update => update.SetProperty(product => product.StockQuantity, product => product.StockQuantity + item.Quantity));
+                            }
+
+                            order.StockReturned = true;
+                        }
                         order.Status = (int)OrderStatus.Cancelled;
                         await _context.SaveChangesAsync();
+                        await callbackTransaction.CommitAsync();
 
                         TempData["Error"] = $"Giao dịch không thành công: {response.Message}";
                         return RedirectToAction("Index", "Cart");

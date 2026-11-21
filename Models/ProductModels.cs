@@ -23,6 +23,9 @@ namespace Project_385.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Tồn kho không thể là số âm")]
+        public int StockQuantity { get; set; }
+
         [Required, Range(1, int.MaxValue, ErrorMessage = "Yêu cầu chọn nhãn hàng")]
         public int BrandID { get; set; }
 

@@ -8,6 +8,7 @@ using Project_385.Infrastructure;
 using Project_385.Services;
 using Project_385.Services.MoMo;
 using System.Security.Claims;
+using System.Data;
 
 namespace Project_385.Controllers
 {
@@ -69,6 +70,24 @@ namespace Project_385.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
+            var products = await _dataContext.Products
+                .Where(product => cartItems.Select(item => item.ProductId).Contains(product.Id))
+                .ToDictionaryAsync(product => product.Id);
+            foreach (var item in cartItems)
+            {
+                if (!products.TryGetValue(item.ProductId, out var product) || item.Quantity < 1 || item.Quantity > product.StockQuantity)
+                {
+                    TempData["Error"] = products.TryGetValue(item.ProductId, out product)
+                        ? $"Số lượng {product.Name} vượt quá tồn kho hiện tại ({product.StockQuantity})."
+                        : "Một sản phẩm trong giỏ hàng không còn tồn tại.";
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                item.ProductName = product.Name;
+                item.Price = product.Price;
+                item.Image = product.Image;
+            }
+
             var pricing = _cartPricingService.BuildSummary(cartItems, currentLatitude, currentLongitude);
             if (!pricing.CanDeliver)
             {
@@ -76,10 +95,25 @@ namespace Project_385.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Create Order
+            await using var transaction = await _dataContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            foreach (var itemGroup in cartItems.GroupBy(item => item.ProductId))
+            {
+                var quantity = itemGroup.Sum(item => item.Quantity);
+                var changed = await _dataContext.Products
+                    .Where(product => product.Id == itemGroup.Key && product.StockQuantity >= quantity)
+                    .ExecuteUpdateAsync(update => update.SetProperty(product => product.StockQuantity, product => product.StockQuantity - quantity));
+
+                if (changed != 1)
+                {
+                    await transaction.RollbackAsync();
+                    TempData["Error"] = "Tồn kho vừa thay đổi. Vui lòng kiểm tra lại giỏ hàng.";
+                    return RedirectToAction("Index", "Cart");
+                }
+            }
+
             var order = new OrderModels
             {
-                OrderNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                OrderNumber = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant(),
                 OrderDate = DateTime.Now,
                 UserName = userEmail,
                 ReceiverName = !string.IsNullOrWhiteSpace(receiverName) ? receiverName : userEmail,
@@ -87,7 +121,8 @@ namespace Project_385.Controllers
                 ShippingAddress = shippingAddress ?? string.Empty,
                 PaymentMethod = paymentMethod == "MoMo" ? "MoMo" : "COD",
                 Total = pricing.GrandTotal,
-                Status = (int)OrderStatus.Pending
+                Status = (int)OrderStatus.Pending,
+                StockReturned = false
             };
 
             _dataContext.Orders.Add(order);
@@ -104,6 +139,7 @@ namespace Project_385.Controllers
 
             _dataContext.OrderDetails.AddRange(orderDetails);
             await _dataContext.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             // Handling COD payment method
             if (order.PaymentMethod == "COD")
@@ -138,7 +174,8 @@ namespace Project_385.Controllers
                 return Redirect(responseFromMomo.PayUrl);
             }
 
-            TempData["Error"] = "Không thể khởi tạo giao dịch MoMo. Đơn hàng của bạn đã được ghi nhận ở trạng thái chờ.";
+            await CancelPendingOrderAndRestoreStock(order);
+            TempData["Error"] = "Không thể khởi tạo giao dịch MoMo. Đơn hàng đã được hủy và tồn kho đã được hoàn lại.";
             return RedirectToAction("OrderSuccess", new { orderNumber = order.OrderNumber });
         }
 
@@ -182,6 +219,32 @@ namespace Project_385.Controllers
             });
 
             await _emailSender.SendEmailAsync(userEmail, $"Xác nhận đơn hàng #{order.OrderNumber}", body);
+        }
+
+        private async Task CancelPendingOrderAndRestoreStock(OrderModels order)
+        {
+            await using var transaction = await _dataContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            var currentOrder = await _dataContext.Orders.FirstOrDefaultAsync(item => item.Id == order.Id);
+            if (currentOrder?.Status == (int)OrderStatus.Pending)
+            {
+                if (!currentOrder.StockReturned)
+                {
+                    var orderItems = await _dataContext.OrderDetails.Where(item => item.OrderId == order.Id).ToListAsync();
+                    foreach (var item in orderItems)
+                    {
+                        await _dataContext.Products
+                            .Where(product => product.Id == item.ProductId)
+                            .ExecuteUpdateAsync(update => update.SetProperty(product => product.StockQuantity, product => product.StockQuantity + item.Quantity));
+                    }
+
+                    currentOrder.StockReturned = true;
+                }
+
+                currentOrder.Status = (int)OrderStatus.Cancelled;
+                await _dataContext.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
         }
     }
 }
