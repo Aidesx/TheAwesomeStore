@@ -16,10 +16,10 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 - [x] Xác minh ứng dụng EF Core 11 truy cập LocalDB và schema hiện tại.
 - [x] Quét advisory NuGet: hiện không package nào bị báo vulnerable; cập nhật các package patch/tooling tương thích.
 - [ ] Kiểm tra credential thật trên môi trường triển khai (repository chỉ có placeholder; chưa có quyền truy cập cấu hình deploy).
-- [ ] Build/publish Docker image và chạy thử (Docker CLI chưa cài trong môi trường).
+- [ ] Build/publish Docker image và chạy thử. Docker Desktop/WSL chưa cài; cài WSL qua winget bị Windows từ chối vì yêu cầu quyền administrator (`0x80073d28`).
 - [x] Smoke test HTTP trang chủ, chi tiết sản phẩm và tìm kiếm (đều trả 200).
 - [x] Smoke test trang Identity, cart, checkout và quyền admin cơ bản.
-- [ ] Smoke test checkout/order/payment callback với tài khoản và credential thanh toán thật.
+- [ ] Smoke test tạo đơn/payment callback với tài khoản và credential thanh toán thật.
 - [x] Commit riêng nâng cấp framework sau khi hoàn tất các kiểm tra cục bộ.
 
 ## Trình tự thực hiện và tiêu chí đạt
@@ -47,7 +47,7 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 ### 4. Database
 
 - Dùng bản sao database để áp dụng migration và kiểm tra rollback/khả năng phục hồi.
-- LocalDB `Shop` hiện đã có migration mới nhất `20261121134306_Add_Product_Stock`; ứng dụng .NET 11 chạy truy vấn thành công. Chưa diễn tập trên bản sao database riêng.
+- Đã tạo COPY_ONLY backup, restore thành `Shop_Net11_Rehearsal`, khởi chạy ứng dụng .NET 11 trên clone và xác minh 11 migrations, ProductCount=2, truy vấn hoạt động. Đã xóa DB clone và backup sau rehearsal; database `Shop` gốc không đổi.
 - Kiểm tra query translation, transaction/locking, checkout tồn kho, callback thanh toán và Identity.
 - Không chạy migration trên production như một phần tự động của lần nâng cấp đầu tiên.
 
@@ -60,7 +60,7 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 ### 6. Deployment và smoke test
 
 - Build/publish Docker image .NET 11, kiểm tra startup, health/logs và graceful shutdown.
-- Docker CLI chưa có trong môi trường hiện tại, vì vậy container build chưa chạy được.
+- Docker CLI chưa có trong môi trường. Cài WSL yêu cầu quyền administrator; Windows từ chối (`0x80073d28`), nên chưa thể cài Docker Desktop/build container.
 - Smoke test trang chủ, tìm kiếm, đăng nhập/đăng ký, giỏ hàng, giới hạn tồn kho, COD, payment callback, admin CRUD.
 - Chạy staging trước production; có image/database backup và phương án rollback về artifact/runtime trước nâng cấp.
 
@@ -76,5 +76,6 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 - NuGet vulnerability scan không báo package vulnerable theo nguồn hiện tại.
 - HTTP smoke test: `/`, `/Product/Details/1`, `/Product/Search?search=iphone` đều trả 200.
 - HTTP smoke test bổ sung: Login/Create/Cart/Checkout trả 200; Admin chuyển 302 về Login; POST thêm sản phẩm hết hàng trả 409 như mong đợi.
-- Database: LocalDB `Shop` có đủ migration đến `Add_Product_Stock`; ProductCount=2. Kết quả xác nhận ứng dụng đọc DB được, không thay thế rehearsal trên bản sao.
-- Còn chờ Docker/container smoke test, database migration rehearsal trên bản sao, kiểm tra secrets của môi trường deploy và checkout/payment cần thông tin xác thực thật.
+- Rehearsal clone: backup/restore thành công; ứng dụng .NET 11 lên clone, đủ 11 migrations và 2 sản phẩm; clone/backup đã dọn sau test.
+- Smoke test clone: Home/Details/Search/Login/Register/Cart/Checkout đều trả 200.
+- Còn chờ Docker/container smoke test và luồng tạo đơn/payment bằng credential thật. Docker bị chặn do cài WSL cần quyền administrator; kiểm tra credential deploy cần quyền truy cập nền tảng deploy.
