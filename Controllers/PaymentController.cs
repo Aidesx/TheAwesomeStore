@@ -45,7 +45,7 @@ namespace Project_385.Controllers
 
                 await using var callbackTransaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
                 var order = await _context.Orders
-                    .FromSqlInterpolated($"SELECT * FROM [Orders] WITH (UPDLOCK, ROWLOCK) WHERE [OrderNumber] = {response.OrderId}")
+                    .FromSql($"SELECT * FROM [Orders] WITH (UPDLOCK, ROWLOCK) WHERE [OrderNumber] = {response.OrderId}")
                     .FirstOrDefaultAsync();
 
                 if (order != null)

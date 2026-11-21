@@ -95,7 +95,7 @@ namespace Project_385.Areas.Admin.Controllers
         {
             await using var transaction = await _dataContext.Database.BeginTransactionAsync(IsolationLevel.Serializable);
             var order = await _dataContext.Orders
-                .FromSqlInterpolated($"SELECT * FROM [Orders] WITH (UPDLOCK, ROWLOCK) WHERE [Id] = {id}")
+                .FromSql($"SELECT * FROM [Orders] WITH (UPDLOCK, ROWLOCK) WHERE [Id] = {id}")
                 .FirstOrDefaultAsync();
             if (order == null)
             {
