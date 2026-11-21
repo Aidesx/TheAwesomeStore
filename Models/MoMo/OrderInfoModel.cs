@@ -1,4 +1,4 @@
-﻿namespace Project_385.Models
+namespace Project_385.Models.MoMo
 {
     public class OrderInfoModel
     {

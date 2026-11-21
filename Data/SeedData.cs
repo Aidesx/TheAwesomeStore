@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Project_385.Models;
 using System.Linq;
 
-namespace Project_385.Repository
+namespace Project_385.Data
 {
     public class SeedData
     {

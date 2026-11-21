@@ -1,4 +1,4 @@
-using Project_385.Repository.Validation;
+using Project_385.Models.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Http;

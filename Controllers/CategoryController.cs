@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_385.Models;
-using Project_385.Repository;
+using Project_385.Data;
 
 namespace Project_385.Controllers
 {

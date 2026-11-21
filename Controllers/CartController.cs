@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Project_385.Models.ViewModels;
 using Project_385.Models;
-using Project_385.Repository;
+using Project_385.Data;
+using Project_385.Infrastructure;
 using Project_385.Services;
 
 namespace Project_385.Controllers
@@ -26,7 +27,7 @@ namespace Project_385.Controllers
 
         public IActionResult Checkout()
         {
-            return View("~/Views/CheckOut/Index.cshtml");
+            return View("~/Views/Checkout/Index.cshtml");
         }
 
         [HttpPost]

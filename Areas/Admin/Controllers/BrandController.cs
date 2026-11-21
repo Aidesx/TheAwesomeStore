@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_385.Areas.Admin.Filters;
 using Project_385.Models;
-using Project_385.Repository;
+using Project_385.Data;
 using Project_385.Services;
 
 namespace Project_385.Areas.Admin.Controllers

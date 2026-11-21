@@ -1,30 +1,32 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_385.Models;
+using Project_385.Models.MoMo;
 using Project_385.Models.ViewModels;
-using Project_385.Repository;
+using Project_385.Data;
+using Project_385.Infrastructure;
 using Project_385.Services;
 using Project_385.Services.MoMo;
 using System.Security.Claims;
 
 namespace Project_385.Controllers
 {
-    public class CheckOutController : Controller
+    public class CheckoutController : Controller
     {
         private readonly DataContext _dataContext;
         private readonly IMomoService _momoService;
         private readonly CartPricingService _cartPricingService;
         private readonly IEmailSender _emailSender;
         private readonly IEmailTemplateRenderer _emailRenderer;
-        private readonly ILogger<CheckOutController> _logger;
+        private readonly ILogger<CheckoutController> _logger;
 
-        public CheckOutController(
+        public CheckoutController(
             DataContext dataContext,
             IMomoService momoService,
             CartPricingService cartPricingService,
             IEmailSender emailSender,
             IEmailTemplateRenderer emailRenderer,
-            ILogger<CheckOutController> logger)
+            ILogger<CheckoutController> logger)
         {
             _dataContext = dataContext;
             _momoService = momoService;

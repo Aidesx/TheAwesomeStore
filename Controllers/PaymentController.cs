@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project_385.Services;
 using Project_385.Models;
-using Project_385.Repository;
+using Project_385.Data;
 using Project_385.Services.MoMo;
 
 namespace Project_385.Controllers
@@ -65,7 +65,7 @@ namespace Project_385.Controllers
 
                         HttpContext.Session.Remove("Cart");
                         TempData["Success"] = "Thanh toán thành công! Cảm ơn bạn.";
-                        return View("~/Views/Checkout/PaymentCallBack.cshtml", response);
+                        return View(response);
                     }
                     else
                     {

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Project_385.Models;
 
-namespace Project_385.Repository
+namespace Project_385.Data
 {
     public class DataContext : IdentityDbContext<AppUserModels>
     {
