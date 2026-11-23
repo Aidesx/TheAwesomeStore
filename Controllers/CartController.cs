@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Project_385.Models.ViewModels;
 using Project_385.Models;
-using Project_385.Repository;
+using Project_385.Data;
+using Project_385.Infrastructure;
 using Project_385.Services;
 
 namespace Project_385.Controllers
@@ -26,27 +27,40 @@ namespace Project_385.Controllers
 
         public IActionResult Checkout()
         {
-            return View("~/Views/CheckOut/Index.cshtml");
+            return View("~/Views/Checkout/Index.cshtml");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(int id)
+        public async Task<IActionResult> Add(int id, int quantity = 1)
         {
             ProductModels product = await _dataContext.Products.FindAsync(id);
 
             if (product == null)
-                return Json(false);
+                return NotFound(new { success = false, message = "Không tìm thấy sản phẩm." });
+
+            quantity = Math.Clamp(quantity, 1, 100);
 
             List<CartItemModel> cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
             CartItemModel cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
+            var requestedTotal = (cartItem?.Quantity ?? 0) + quantity;
+            if (product.StockQuantity <= 0)
+                return Conflict(new { success = false, message = "Sản phẩm hiện đã hết hàng." });
+            if (requestedTotal > product.StockQuantity)
+                return Conflict(new { success = false, message = $"Chỉ còn {product.StockQuantity} sản phẩm trong kho." });
 
             if (cartItem == null)
-                cart.Add(new CartItemModel(product));
+            {
+                var newItem = new CartItemModel(product);
+                newItem.Quantity = quantity;
+                cart.Add(newItem);
+            }
             else
-                cartItem.Quantity += 1;
+            {
+                cartItem.Quantity = Math.Min(cartItem.Quantity + quantity, 100);
+            }
 
             HttpContext.Session.SetJson("Cart", cart);
-            return Json(true);
+            return Json(new { success = true, message = "Đã thêm sản phẩm vào giỏ hàng." });
         }
 
 
@@ -57,7 +71,9 @@ namespace Project_385.Controllers
 
             if (cartItem != null && cartItem.Quantity >= 1)
             {
-                ++cartItem.Quantity;
+                var stock = _dataContext.Products.Where(p => p.Id == id).Select(p => p.StockQuantity).FirstOrDefault();
+                if (cartItem.Quantity < stock) ++cartItem.Quantity;
+                else TempData["Error"] = "Không thể tăng thêm vì đã đạt số lượng tồn kho.";
             }
             else if (cartItem != null)
             {

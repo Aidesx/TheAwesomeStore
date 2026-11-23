@@ -1,8 +1,8 @@
 .cart-container {
         max-width: 900px;
         margin: 2rem auto;
-        background: #0d1117;
-        border: 1px solid #1a1f35;
+        background: var(--bg-deep);
+        border: 1px solid var(--border-legacy);
         border-radius: 0.75rem;
         padding: 2rem;
     }
@@ -14,19 +14,19 @@
     .cart-table {
         width: 100%;
         border-collapse: collapse;
-        color: #cbd5e1;
+        color: var(--text-soft);
     }
     .cart-table th {
         text-align: left;
         padding: 0.75rem;
-        border-bottom: 1px solid #1a1f35;
+        border-bottom: 1px solid var(--border-legacy);
         color: #94a3b8;
         font-weight: 500;
         font-size: 0.95rem;
     }
     .cart-table td {
         padding: 0.75rem;
-        border-bottom: 1px solid #1a1f35;
+        border-bottom: 1px solid var(--border-legacy);
         vertical-align: middle;
     }
     .cart-table img {
@@ -34,15 +34,15 @@
         max-width: 70px;
     }
     .cart-product-name {
-        color: #e2e8f0;
+        color: var(--text-content);
         font-weight: 500;
         text-decoration: none;
     }
     .cart-product-name:hover {
-        color: #60a5fa;
+        color: var(--text-accent);
     }
     .cart-price, .cart-total {
-        color: #60a5fa;
+        color: var(--text-accent);
         font-weight: 600;
     }
     .qty-control {
@@ -53,7 +53,7 @@
     .qty-btn {
         background: #1e293b;
         border: 1px solid #1e3a5f;
-        color: #e2e8f0;
+        color: var(--text-content);
         width: 28px;
         height: 28px;
         border-radius: 0.3rem;
@@ -65,13 +65,13 @@
         transition: background 0.2s;
     }
     .qty-btn:hover {
-        background: #3b82f6;
+        background: var(--color-primary);
         color: white;
     }
     .qty-input {
         width: 40px;
         text-align: center;
-        background: #111827;
+        background: var(--bg-raised);
         border: 1px solid #1e3a5f;
         color: #f0f4ff;
         border-radius: 0.3rem;
@@ -94,7 +94,7 @@
     .grand-total {
         font-size: 1.2rem;
         font-weight: 700;
-        color: #60a5fa;
+        color: var(--text-accent);
     }
     .btn-clear {
         background: #7f1d1d;
@@ -108,7 +108,7 @@
         background: #991b1b;
     }
     .btn-checkout {
-        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        background: linear-gradient(135deg, var(--color-primary-strong), var(--color-primary));
         color: white;
         border: none;
         padding: 0.5rem 1.5rem;
@@ -128,6 +128,6 @@
     .empty-cart {
         text-align: center;
         padding: 3rem 0;
-        color: #4b5e7a;
+        color: #94a3b8;
         font-size: 1.1rem;
     }

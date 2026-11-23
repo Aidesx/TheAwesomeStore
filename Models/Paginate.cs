@@ -17,7 +17,7 @@
         {
             int totalPage= (int)Math.Ceiling((decimal)totalItem / (decimal)pageSize);
 
-            int currentPage = page;
+            int currentPage = Math.Max(1, Math.Min(page, Math.Max(totalPage, 1)));
             int startPage = currentPage - 5;
             int endPage = currentPage + 4;
 

@@ -25,12 +25,13 @@
                     <div class="product-card animate-fade-in-up">
                         <a asp-action="Details" asp-controller="Product" asp-route-Id="@item.Id" class="product-link">
                             <div class="product-img img-zoom-container">
-                                <img src="~/images/@item.Image" alt="@item.Name" onerror="this.onerror=null;this.src='/images/default.png';" />
+                                <img loading="lazy" decoding="async" src="~/images/@item.Image" alt="@item.Name" onerror="this.onerror=null;this.src='/images/default.png';" />
                             </div>
                         </a>
                         <div class="card-body">
                             <p class="card-details">Danh mục: @item.Category?.Name</p>
                             <p class="card-details">Thương hiệu: @item.Brand?.Name</p>
+                            <p class="card-details stock-status">@(item.StockQuantity > 0 ? $"Còn {item.StockQuantity} sản phẩm" : "Hết hàng")</p>
                             <a asp-action="Details" asp-controller="Product" asp-route-Id="@item.Id" class="card-title">
                                 @item.Name
                             </a>
@@ -39,7 +40,7 @@
                                 <div>
                                     <p class="price-current">@item.Price.ToString("#,##0 VND")</p>
                                 </div>
-                                <button class="btn-add-cart add-to-cart" data-product-id="@item.Id">
+                                <button class="btn-add-cart add-to-cart" data-product-id="@item.Id" disabled="@(item.StockQuantity <= 0)" aria-label="@(item.StockQuantity > 0 ? $"Thêm {item.Name} vào giỏ hàng" : $"{item.Name} đã hết hàng")">
                                     <i class="fa fa-shopping-cart"></i> Thêm
                                 </button>
                             </div>
@@ -61,24 +62,24 @@
 
             @if (pager != null && pager.TotalPage > 1)
             {
-<ul class="pagination-container tailwind-pagination" role="navigation" aria-label="Phân trang">
+<nav aria-label="Phân trang"><ul class="pagination-container tailwind-pagination">
                     @if (pager.CurrentPage > 1)
                     {
-                        <li class="page-item"><a asp-action="Index" asp-route-brand="@ViewBag.BrandSlug" asp-route-pg="1">Đầu</a></li>
-                        <li class="page-item"><a asp-action="Index" asp-route-brand="@ViewBag.BrandSlug" asp-route-pg="@(pager.CurrentPage - 1)">Trước</a></li>
+                        <li class="page-item"><a asp-action="Index" asp-route-Slug="@ViewBag.BrandSlug" asp-route-pg="1">Đầu</a></li>
+                        <li class="page-item"><a asp-action="Index" asp-route-Slug="@ViewBag.BrandSlug" asp-route-pg="@(pager.CurrentPage - 1)">Trước</a></li>
                     }
                     @for (var pge = pager.PageStart; pge <= pager.PageEnd; pge++)
                     {
                         <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
-                            <a asp-action="Index" asp-route-brand="@ViewBag.BrandSlug" asp-route-pg="@pge">@pge</a>
+                            <a asp-action="Index" asp-route-Slug="@ViewBag.BrandSlug" asp-route-pg="@pge">@pge</a>
                         </li>
                     }
                     @if (pager.CurrentPage < pager.TotalPage)
                     {
-                        <li class="page-item"><a asp-action="Index" asp-route-brand="@ViewBag.BrandSlug" asp-route-pg="@(pager.CurrentPage + 1)">Tiếp</a></li>
-                        <li class="page-item"><a asp-action="Index" asp-route-brand="@ViewBag.BrandSlug" asp-route-pg="@(pager.TotalPage)">Cuối</a></li>
+                        <li class="page-item"><a asp-action="Index" asp-route-Slug="@ViewBag.BrandSlug" asp-route-pg="@(pager.CurrentPage + 1)">Tiếp</a></li>
+                        <li class="page-item"><a asp-action="Index" asp-route-Slug="@ViewBag.BrandSlug" asp-route-pg="@(pager.TotalPage)">Cuối</a></li>
                     }
-                </ul>
+                </ul></nav>
             }
         </div>
     </div>
@@ -95,13 +96,13 @@
                 $.ajax({
                     url: '@Url.Action("Add", "Cart")',
                     type: 'POST',
-                    data: { Id: id },
+                    data: { Id: id, quantity: 1 },
                     success: function (result) {
-                        if (result) {
+                        if (result?.success) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Thành công',
-                                text: 'Thêm giỏ hàng thành công!',
+                                text: result.message || 'Thêm giỏ hàng thành công!',
                                 showConfirmButton: false,
                                 background: '#0d1117',
                                 color: '#e2e8f0',
@@ -109,11 +110,11 @@
                             });
                         }
                     },
-                    error: function () {
+                    error: function (xhr) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Thất bại',
-                            text: 'Có lỗi khi thêm giỏ hàng',
+                            text: xhr.responseJSON?.message || 'Có lỗi khi thêm giỏ hàng',
                             background: '#0d1117',
                             color: '#e2e8f0'
                         });
@@ -128,7 +129,7 @@
                 $.ajax({
                     url: '@Url.Action("AddWishList", "Home")',
                     type: 'POST',
-                    data: { Id: id },
+                    data: { Id: id, quantity: 1 },
                     success: function (result) {
                         if (result.success) {
                             Swal.fire({
@@ -161,7 +162,7 @@
                 $.ajax({
                     url: '@Url.Action("AddCompare", "Home")',
                     type: 'POST',
-                    data: { Id: id },
+                    data: { Id: id, quantity: 1 },
                     success: function (result) {
                         if (result.success) {
                             Swal.fire({

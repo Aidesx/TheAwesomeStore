@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Project_385.Models;
 using System.Linq;
 
-namespace Project_385.Repository
+namespace Project_385.Data
 {
     public class SeedData
     {
@@ -20,8 +20,8 @@ namespace Project_385.Repository
                 BrandModels SamsungBrand = new BrandModels { Name = "Samsung", Description = "Samsung — global electronics leader offering Galaxy smartphones", Slug = "samsung", Status = 1 };
 
                 _context.Products.AddRange(
-                    new ProductModels { Name = "Điện thoại iPhone 13 Pro Max", Description = "Điện thoại cao cấp", Price = 29990000, Brand = AppleBrand, Slug = "iphone-13-pro-max", Category = Macbook, Image = "iphone13promax.jpg" },
-                    new ProductModels { Name = "Điện thoại Samsung Galaxy S21 Ultra", Description = "Điện thoại cao cấp", Price = 27990000, Brand = SamsungBrand, Slug = "samsung-galaxy-s21-ultra", Category = GalaxyBook, Image = "galaxys21ultra.jpg" }
+                    new ProductModels { Name = "Điện thoại iPhone 13 Pro Max", Description = "Điện thoại cao cấp", Price = 29990000, Brand = AppleBrand, Slug = "iphone-13-pro-max", Category = Macbook, Image = "iphone13promax.jpg", StockQuantity = 10 },
+                    new ProductModels { Name = "Điện thoại Samsung Galaxy S24 Ultra", Description = "Điện thoại cao cấp", Price = 27990000, Brand = SamsungBrand, Slug = "samsung-galaxy-s24-ultra", Category = GalaxyBook, Image = "galaxys21ultra.jpg", StockQuantity = 10 }
                 );
 
                 _context.SaveChanges();

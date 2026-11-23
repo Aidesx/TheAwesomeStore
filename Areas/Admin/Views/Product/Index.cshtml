@@ -20,6 +20,7 @@
                     <th>Tên sản phẩm</th>
                     <th>Mô tả</th>
                     <th>Giá</th>
+                    <th>Tồn kho</th>
                     <th>Ảnh</th>
                     <th>Slug</th>
                     <th>Danh mục</th>
@@ -35,6 +36,7 @@
                         <td>@item.Name</td>
                         <td>@Html.Raw(item.Description)</td>
                         <td>@item.Price.ToString("#,##0 VND")</td>
+                        <td>@item.StockQuantity</td>
                         <td><img src="~/images/@item.Image" style="max-width: 80px; border-radius: 0.25rem;" onerror="this.onerror=null;this.src='/images/default.png';" /></td>
                         <td>@item.Slug</td>
                         <td>@item.Category?.Name</td>

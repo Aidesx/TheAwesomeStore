@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project_385.Areas.Admin.Filters;
 using Project_385.Models;
-using Project_385.Repository;
+using Project_385.Data;
 using Project_385.Services;
 
 namespace Project_385.Areas.Admin.Controllers
@@ -175,6 +175,7 @@ namespace Project_385.Areas.Admin.Controllers
                 existingProduct.Slug = product.Slug;
                 existingProduct.Description = product.Description;
                 existingProduct.Price = product.Price;
+                existingProduct.StockQuantity = product.StockQuantity;
                 existingProduct.BrandID = product.BrandID;
                 existingProduct.CategoryID = product.CategoryID;
 

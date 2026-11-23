@@ -23,7 +23,7 @@
         </div>
     }
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert" aria-live="assertive"></div>
 
     <form asp-action="Create" asp-controller="Account" method="post">
         @Html.AntiForgeryToken()
@@ -31,25 +31,25 @@
         <div class="form-group">
             <label asp-for="UserName">Tên đăng nhập</label>
             <input asp-for="UserName" class="form-control" placeholder="Nhập tên đăng nhập..." />
-            <span asp-validation-for="UserName" class="text-danger"></span>
+            <span asp-validation-for="UserName" class="text-danger" aria-live="polite"></span>
         </div>
 
         <div class="form-group">
             <label asp-for="Email">Email</label>
-            <input asp-for="Email" type="email" class="form-control" placeholder="Nhập địa chỉ email..." />
-            <span asp-validation-for="Email" class="text-danger"></span>
+            <input asp-for="Email" type="email" autocomplete="email" class="form-control" placeholder="Nhập địa chỉ email..." />
+            <span asp-validation-for="Email" class="text-danger" aria-live="polite"></span>
         </div>
 
         <div class="form-group">
             <label asp-for="Password">Mật khẩu</label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." id="passwordInput" />
-            <span asp-validation-for="Password" class="text-danger"></span>
+            <input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." id="passwordInput" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="text-danger" aria-live="polite"></span>
         </div>
 
         <div class="form-group">
             <label asp-for="ConfirmPassword">Xác nhận mật khẩu</label>
-            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu..." id="confirmPasswordInput" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu..." id="confirmPasswordInput" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger" aria-live="polite"></span>
         </div>
 
         <div class="checkbox-inline">
@@ -68,7 +68,8 @@
             @Html.AntiForgeryToken()
             <label>Quên mật khẩu?</label>
             <div class="auth-forgot-section">
-                <input type="email" name="Email" class="form-control" placeholder="Nhập email để lấy lại mật khẩu" required />
+                <label class="sr-only" for="create-forgot-email">Email khôi phục</label>
+                <input type="email" id="create-forgot-email" name="Email" autocomplete="email" class="form-control" placeholder="Nhập email để lấy lại mật khẩu" required />
                 <button type="submit" class="btn-forgot"><i class="fa fa-envelope"></i> Gửi</button>
             </div>
         </form>
