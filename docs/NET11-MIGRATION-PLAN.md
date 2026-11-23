@@ -16,7 +16,7 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 - [x] Xác minh ứng dụng EF Core 11 truy cập LocalDB và schema hiện tại.
 - [x] Quét advisory NuGet: hiện không package nào bị báo vulnerable; cập nhật các package patch/tooling tương thích.
 - [ ] Kiểm tra credential thật trên môi trường triển khai (repository chỉ có placeholder; chưa có quyền truy cập cấu hình deploy).
-- [ ] Build/publish Docker image và chạy thử. Docker Desktop/WSL chưa cài; cài WSL qua winget bị Windows từ chối vì yêu cầu quyền administrator (`0x80073d28`).
+- [ ] Chạy thử image bằng Docker/Podman. Đã build image archive bằng container tooling tích hợp trong SDK 11; máy chưa có engine để chạy container.
 - [x] Smoke test HTTP trang chủ, chi tiết sản phẩm và tìm kiếm (đều trả 200).
 - [x] Smoke test trang Identity, cart, checkout và quyền admin cơ bản.
 - [ ] Smoke test tạo đơn/payment callback với tài khoản và credential thanh toán thật.
@@ -60,7 +60,7 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 ### 6. Deployment và smoke test
 
 - Build/publish Docker image .NET 11, kiểm tra startup, health/logs và graceful shutdown.
-- Docker CLI chưa có trong môi trường. Cài WSL yêu cầu quyền administrator; Windows từ chối (`0x80073d28`), nên chưa thể cài Docker Desktop/build container.
+- SDK 11 đã tạo Docker-compatible archive `bin/Project385-net11.oci.tar` (`project-385:net11-verify`) trên base `mcr.microsoft.com/dotnet/aspnet:11.0`; manifest có 8 layers và entrypoint `dotnet /app/Project 385.dll`. Docker CLI/engine chưa có để import và chạy image.
 - Smoke test trang chủ, tìm kiếm, đăng nhập/đăng ký, giỏ hàng, giới hạn tồn kho, COD, payment callback, admin CRUD.
 - Chạy staging trước production; có image/database backup và phương án rollback về artifact/runtime trước nâng cấp.
 
@@ -78,4 +78,9 @@ Chuyển ứng dụng ASP.NET Core MVC từ `net8.0` sang `.NET 11`, giữ hành
 - HTTP smoke test bổ sung: Login/Create/Cart/Checkout trả 200; Admin chuyển 302 về Login; POST thêm sản phẩm hết hàng trả 409 như mong đợi.
 - Rehearsal clone: backup/restore thành công; ứng dụng .NET 11 lên clone, đủ 11 migrations và 2 sản phẩm; clone/backup đã dọn sau test.
 - Smoke test clone: Home/Details/Search/Login/Register/Cart/Checkout đều trả 200.
-- Còn chờ Docker/container smoke test và luồng tạo đơn/payment bằng credential thật. Docker bị chặn do cài WSL cần quyền administrator; kiểm tra credential deploy cần quyền truy cập nền tảng deploy.
+- Xác minh lại ngày 23/11/2026: restore bằng SDK 11.0.100 thành công; build Release 0 warning/0 error; publish Release thành công tại `bin/publish-net11`.
+- Khởi động artifact publish trên LocalDB với database dùng riêng `Shop_Net11_Verify_20261123`; ứng dụng tự áp dụng migration và seed, sau đó Home/Details/Search/Login/Register/Cart/Checkout trả 200, Admin trả 302 khi chưa đăng nhập. Database xác minh đã được xóa sau kiểm tra; database dùng thật không bị chạm tới.
+- Quét NuGet advisory hiện tại: không tìm thấy package vulnerable.
+- Callback MoMo giả với chữ ký sai trên một LocalDB riêng bị từ chối đúng cách (HTTP 302 về `/Cart`); database tạm đã xóa. Đây chỉ xác nhận nhánh từ chối chữ ký, không thay thế callback thành công từ sandbox/credential MoMo thật.
+- Docker CLI không có trong môi trường; chưa có test project riêng nên `dotnet test` không cung cấp kết quả test tự động. Còn chờ Docker/container smoke test và luồng tạo đơn/payment với credential thật.
+- Container tooling tích hợp SDK 11 đã build image archive thành công trên base ASP.NET 11; đã xác minh tag, entrypoint và manifest. Chưa thể chạy image để kiểm tra health/logs/graceful shutdown vì chưa có container engine.
